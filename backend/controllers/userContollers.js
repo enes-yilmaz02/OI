@@ -3,13 +3,22 @@
 const firebase = require('../db');
 const User = require('../models/users');
 const firestore = firebase.firestore();
+const { checkIfEmailExists } = require('./emailValidationService');
 
 
 const addUser = async (req, res, next) => {
     try {
         const data = req.body;
-        await firestore.collection('users').doc().set(data);
-        res.send('Record saved successfuly');
+        // Önce e-posta çakışmasını kontrol edin
+        const emailExists = await checkIfEmailExists(data.email);
+        
+        if (emailExists) {
+            res.status(400).send('E-posta adresi başka bir kullanıcı tarafından kullanılıyor.');
+        } else {
+            // E-posta çakışması yoksa kullanıcıyı kaydedin
+            await firestore.collection('users').doc().set(data);
+            res.sendStatus(200);
+        }
     } catch (error) {
         res.status(400).send(error.message);
     }
