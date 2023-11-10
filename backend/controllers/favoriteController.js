@@ -2,7 +2,6 @@
 
 const firebase = require('../db');
 const Favorite = require('../models/favorites');
-const Order = require('../models/favorites');
 const firestore = firebase.firestore();
 
 

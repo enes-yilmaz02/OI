@@ -17,7 +17,7 @@ const addUser = async (req, res, next) => {
         } else {
             // E-posta çakışması yoksa kullanıcıyı kaydedin
             await firestore.collection('users').doc().set(data);
-            res.sendStatus(200);
+            res.status(200);
         }
     } catch (error) {
         res.status(400).send(error.message);
@@ -90,10 +90,33 @@ const deleteUser = async (req, res, next) => {
     }
 }
 
+// const checkEmailAvailability = async (req, res) => {
+//     const { email } = req.params; // E-posta adresini URL'den al
+    
+//     try {
+//       // Firestore'da 'users' koleksiyonunu kullanarak e-posta varlığını kontrol et
+//       const usersRef = firestore.collection('users');
+//       const query = await usersRef.where('email', '==', email).get();
+      
+//       if (!query.empty) {
+//         // E-posta adresi kullanılıyor
+//         res.json({ available: false });
+//       } else {
+//         // E-posta adresi kullanılabilir
+//         res.json({ available: true });
+//       }
+//     } catch (error) {
+//       console.error(error);
+//       res.status(500).json({ error: 'Server error' });
+//     }
+//   };
+
+
 module.exports = {
     addUser,
     getAllUsers,
     getUser,
     updateUser,
-    deleteUser
+    deleteUser,
+    // checkEmailAvailability
 }

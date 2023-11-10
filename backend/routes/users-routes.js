@@ -4,14 +4,16 @@ const {addUser,
        getAllUsers, 
        getUser,
        updateUser,
-       deleteUser
+       deleteUser,
+    //    checkEmailAvailability
       } = require('../controllers/userContollers');
 
 
 router.post('/user', addUser);
 router.get('/users', getAllUsers);
 router.get('/user/:id', getUser);
-router.put('/users/:id', updateUser);
+// router.get('/user/check-email/:email', checkEmailAvailability);
+router.put('/user/:id', updateUser);
 router.delete('/users/:id', deleteUser);
 
 

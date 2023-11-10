@@ -11,7 +11,6 @@ const app = express();
 
 
 
-
 app.use(express.json());
 app.use(cors());
 app.use(bodyParser.json());
@@ -25,5 +24,6 @@ app.use('/api', userRoutes.routes);
 app.use('/api', productRoutes.routes);
 app.use('/api' , orderRoutes.routes);
 app.use('/api' , favoriteRoutes.routes);
+// app.use('/api' ,uploadFile.routes);
 
 app.listen(config.port, () => console.log('App is listening on url http://localhost:' + config.port));
