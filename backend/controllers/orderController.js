@@ -7,9 +7,20 @@ const firestore = firebase.firestore();
 
 const addOrder = async (req, res, next) => {
     try {
+        const userId = 'userId'; // Kullanıcı ID'sini buraya yerleştirin
         const data = req.body;
-        await firestore.collection('orders').doc().set(data);
-        res.send('Record saved successfuly');
+
+        // Kullanıcının belgesini alın
+        const userDocRef = firestore.collection('users').doc(userId);
+
+        // Eğer belge (document) yoksa oluştur
+        await userDocRef.set({}, { merge: true });
+
+        // Kullanıcının orders koleksiyonuna ürün ekleyin
+        const ordersCollectionRef = userDocRef.collection('orders');
+        await ordersCollectionRef.add(data);
+
+        res.send('Record saved successfully');
     } catch (error) {
         res.status(400).send(error.message);
     }

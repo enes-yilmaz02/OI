@@ -3,26 +3,21 @@
 const firebase = require('../db');
 const User = require('../models/users');
 const firestore = firebase.firestore();
-const { checkIfEmailExists } = require('./emailValidationService');
+const jwt = require('jsonwebtoken');
 
 
 const addUser = async (req, res, next) => {
     try {
         const data = req.body;
-        // Önce e-posta çakışmasını kontrol edin
-        const emailExists = await checkIfEmailExists(data.email);
-        
-        if (emailExists) {
-            res.status(400).send('E-posta adresi başka bir kullanıcı tarafından kullanılıyor.');
-        } else {
-            // E-posta çakışması yoksa kullanıcıyı kaydedin
-            await firestore.collection('users').doc().set(data);
-            res.status(200);
-        }
+
+        // Kullanıcıyı kaydet
+        await firestore.collection('users').doc().set(data);
+        res.status(200).send('Kullanıcı başarıyla kaydedildi.');
     } catch (error) {
         res.status(400).send(error.message);
     }
 }
+
 
 const getAllUsers = async (req, res, next) => {
     try {
@@ -89,27 +84,27 @@ const deleteUser = async (req, res, next) => {
         res.status(400).send(error.message);
     }
 }
+const loginUser = async (req, res, next) => {
+    try {
+        const { username, password } = req.body;
 
-// const checkEmailAvailability = async (req, res) => {
-//     const { email } = req.params; // E-posta adresini URL'den al
-    
-//     try {
-//       // Firestore'da 'users' koleksiyonunu kullanarak e-posta varlığını kontrol et
-//       const usersRef = firestore.collection('users');
-//       const query = await usersRef.where('email', '==', email).get();
-      
-//       if (!query.empty) {
-//         // E-posta adresi kullanılıyor
-//         res.json({ available: false });
-//       } else {
-//         // E-posta adresi kullanılabilir
-//         res.json({ available: true });
-//       }
-//     } catch (error) {
-//       console.error(error);
-//       res.status(500).json({ error: 'Server error' });
-//     }
-//   };
+        // Kullanıcıyı bul
+        const userRef = firestore.collection('users');
+        const query = await userRef.where('username', '==', username).where('password', '==', password).get();
+
+        if (!query.empty) {
+            // Kullanıcı bulundu, token üret
+            const user = query.docs[0].data();
+            const token = jwt.sign({ userId: query.docs[0].id, username: user.username }, 'SECRET_KEY');
+            
+            res.json({ token });
+        } else {
+            res.status(401).json({ error: 'Geçersiz kullanıcı adı veya şifre' });
+        }
+    } catch (error) {
+        res.status(400).send(error.message);
+    }
+}
 
 
 module.exports = {
@@ -118,5 +113,5 @@ module.exports = {
     getUser,
     updateUser,
     deleteUser,
-    // checkEmailAvailability
+    loginUser
 }

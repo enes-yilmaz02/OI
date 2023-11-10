@@ -5,16 +5,16 @@ const {addUser,
        getUser,
        updateUser,
        deleteUser,
-    //    checkEmailAvailability
+       loginUser
       } = require('../controllers/userContollers');
 
 
 router.post('/user', addUser);
 router.get('/users', getAllUsers);
 router.get('/user/:id', getUser);
-// router.get('/user/check-email/:email', checkEmailAvailability);
 router.put('/user/:id', updateUser);
 router.delete('/users/:id', deleteUser);
+router.get('/login' , loginUser);
 
 
 module.exports = {
