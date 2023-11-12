@@ -14,9 +14,9 @@ router.get('/users', getAllUsers);
 router.get('/user/:id', getUser);
 router.put('/user/:id', updateUser);
 router.delete('/users/:id', deleteUser);
-router.get('/login' , loginUser);
+router.post('/login' , loginUser);
 
-
+ 
 module.exports = {
     routes: router
 }

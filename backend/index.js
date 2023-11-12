@@ -2,6 +2,7 @@
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
+var cookieParser = require('cookie-parser')
 const config = require('./config');
 const userRoutes = require('./routes/users-routes');
 const productRoutes = require('./routes/products-routes');
@@ -19,6 +20,8 @@ app.use(
         extended: false
     })
 );
+
+app.use(cookieParser());
 
 app.use('/api', userRoutes.routes);
 app.use('/api', productRoutes.routes);
