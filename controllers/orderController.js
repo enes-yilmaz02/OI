@@ -82,6 +82,7 @@ const getAllOrders = async (req, res, next) => {
                 email: productData.email,
                 description: productData.description,
                 creoterId: productData.creoterId,
+                orderDate:productData.orderDate,
                 userId: productData.userId,
               };
             })
@@ -118,7 +119,8 @@ const getAllCreoterOrders = async (req, res, next) => {
           orderData.id || doc.id,
           orderData.orders,
           orderData.totalAmount,
-          orderData.userId
+          orderData.userId,
+          orderData.orderDate,
         );
 
         // Assuming there are other properties in the Order model (e.g., totalAmount)
@@ -134,9 +136,42 @@ const getAllCreoterOrders = async (req, res, next) => {
   }
 };
 
+const getAllCreoterOrdersById = async (req, res, next) => {
+  try {
+    const creoterId = req.params.creoterId; // req.params'tan creoterId'yi çıkarın
+    console.log(creoterId);
 
+    // creoterId tanımlı mı kontrol et
+    if (!creoterId) {
+      return res.status(400).send("creoterId tanımsız");
+    }
 
+    const creoterOrdersCollectionRef = firestore.collection("creoterOrders");
 
+    const data = await creoterOrdersCollectionRef.where("orders.creoterId", "==", creoterId).get();
+
+    console.log(data);
+
+    const ordersArray = [];
+
+    if (data.empty) {
+      res.send(ordersArray);
+    } else {
+      data.forEach((doc) => {
+        const orderData = doc.data();
+
+        // Eğer Order modelinde diğer özellikler varsa (örneğin, totalAmount gibi)
+        // Bu özellikleri ihtiyaca göre order örneğine ekleyin
+
+        ordersArray.push(orderData);
+      });
+
+      res.send(ordersArray);
+    }
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+};
 
 
 const getOrder = async (req, res, next) => {
@@ -214,5 +249,6 @@ module.exports = {
   updateOrder,
   deleteOrder,
   addCreoterOrder,
-  getAllCreoterOrders
+  getAllCreoterOrders,
+  getAllCreoterOrdersById
 };

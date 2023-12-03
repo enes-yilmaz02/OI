@@ -13,7 +13,8 @@ class Product {
     taxNumber,
     email,
     description,
-    creoterId
+    creoterId,
+    createDate
   ) {
     this.id = id;
     this.code = code;
@@ -29,6 +30,7 @@ class Product {
     this.email = email;
     this.description = description;
     this.creoterId=creoterId;
+    this.createDate=createDate;
   }
 }
 module.exports = Product;

@@ -66,7 +66,12 @@ app.post('/upload', multer.single('filename'), (req, res, next) => {
  app.get('/files/:filename', (req, res, next) => {
    const filename = req.params.filename;
    const file = bucket.file(`files/${filename}`);
- 
+
+   // Dosya adı null veya boş ise 404 hatası döndür
+   if (!filename) {
+    return res.status(404).json({ error: 'Dosya bulunamadı.' });
+  }
+  
    file.createReadStream()
      .on('error', (err) => {
        console.error(err);
@@ -86,24 +91,7 @@ app.post('/upload', multer.single('filename'), (req, res, next) => {
      .pipe(res);
  });
 
- // Tüm dosyaları getiren endpoint
-app.get('/files', async (req, res) => {
-   try {
-     const [files] = await bucket.getFiles();
- 
-     const fileUrls = files.map(file => {
-       return {
-         name: file.name,
-         url: `https://storage.googleapis.com/${bucket.name}/`
-       };
-     });
- 
-     res.json(fileUrls);
-   } catch (error) {
-     console.error(error);
-     res.status(500).json({ error: 'Internal Server Error' });
-   }
- });
+
 
 
 app.use('/api', userRoutes.routes);

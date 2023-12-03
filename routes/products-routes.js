@@ -8,6 +8,7 @@ const {addProduct,
        getCreoterProduct,
        updateCreoterProduct,
        deleteCreoterProduct,
+       getProductByCategory
        //getAllCreoterProducts
       } = require('../controllers/productController');
 const { uploadFile } = require('../controllers/uploadfileController');
@@ -22,10 +23,12 @@ router.get('/products', getAllProducts);
 router.get('/products/:productId', getProduct);
 router.get('/products/creoter/:creoterId', getCreoterProducts);
 router.get('/products/:creoter/creoterId/:productId', getCreoterProduct);
+router.get('/products/category/:category', getProductByCategory);
 router.put('/products/:productId', updateProduct);
 router.put('/products/creoter/:creoterId/:productId', updateCreoterProduct);
 router.delete('/products/:productId', deleteProduct);
 router.delete('/products/creoter/:creoterId/:productId', deleteCreoterProduct);
+
 
 
 module.exports = {

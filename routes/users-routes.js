@@ -23,7 +23,9 @@ const {addFavorite,
     getAllFavorites, 
     getFavorite,
     updateFavorite,
-    deleteFavorite
+    deleteFavorite,
+    deleteFavoriteById,
+    getFavoriteById
    } = require('../controllers/favoriteController');
 
 const {addCart, 
@@ -38,6 +40,9 @@ const { sendEmail } = require('../controllers/sendMail');
 
 // send email
 router.post('/users/:userId/sendEmail', sendEmail);
+
+// send email
+router.post('/users/sendEmail', sendEmail);
 
 // add user
 router.post('/users', addUser);
@@ -67,6 +72,9 @@ router.get('/users/:userId/orders', getAllOrders);
 // get all favorites
 router.get('/users/:userId/favorites', getAllFavorites);
 
+// get  favorites by id
+router.get('/users/:userId/favorites/product/:productId', getFavoriteById);
+
 // get all carts
 router.get('/users/:userId/carts', getAllCarts);
 
@@ -90,6 +98,10 @@ router.delete('/users/:userId/orders/:orderId', deleteOrder);
 
 // delete favorite
 router.delete('/users/:userId/favorites/:favoriteId', deleteFavorite);
+
+// delete favorite by id
+router.delete('/users/:userId/favorites/product/:productId', deleteFavoriteById);
+
 
 // delete cart
 router.delete('/users/:userId/carts/:cartId', deleteCart);

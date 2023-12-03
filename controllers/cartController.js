@@ -43,31 +43,27 @@ const getAllCarts = async (req, res, next) => {
       res.send(cartsArray);
     } else {
       data.forEach((doc) => {
-        const cart = new Cart(
-          doc.id,
-          doc.data().code,
-          doc.data().name,
-          doc.data().category,
-          doc.data().file,
-          doc.data().priceStacked,
-          doc.data().quantity,
-          doc.data().selectedStatus,
-          doc.data().valueRating,
-          doc.data().companyName,
-          doc.data().taxNumber,
-          doc.data().email,
-          doc.data().description,
-          doc.data().creoterId,
-          doc.data().status
-        );
+        const cartData = doc.data();
+
+        // Create a Cart instance with the necessary properties
+        const cart = {
+          id: doc.id,
+          creoterId: cartData.creoterId,
+          email: cartData.email,
+          product:cartData.product ,
+          quantity: cartData.quantity,
+        };
+
         cartsArray.push(cart);
       });
+
       res.send(cartsArray);
     }
   } catch (error) {
     res.status(400).send(error.message);
   }
 };
+
 
 const getCart = async (req, res, next) => {
   try {

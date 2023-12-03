@@ -4,12 +4,14 @@ class Order {
         orders,
         totalAmount,
         userId,
+        orderDate
         
       ) {
         this.id = id;
         this.orders=orders;
         this.totalAmount=totalAmount;
         this.userId = userId;
+        this.orderDate=orderDate;
         
       }
     }
