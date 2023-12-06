@@ -24,7 +24,7 @@ const getAllwaitList = async (req, res, next) => {
 
 
     if (data.empty) {
-        res.status(404).send("No user record found");
+        res.send(usersArray);
       } else {
         data.forEach((doc) => {
           const user = new waitListUser(
