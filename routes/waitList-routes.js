@@ -11,8 +11,8 @@ const {
 
 
 router.post("/waitList", addwaitList);
-router.get("/waitList/:userId", getwaitList);
 router.get("/waitList", getAllwaitList);
+router.get("/waitList/:userId", getwaitList);
 router.put("/waitList/:userId", updatewaitList);
 router.delete("/waitList/:userId", deletewaitList);
 

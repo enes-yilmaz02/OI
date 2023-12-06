@@ -27,7 +27,7 @@ const getAllwaitList = async (req, res, next) => {
         res.status(404).send("No user record found");
       } else {
         data.forEach((doc) => {
-          const user = new User(
+          const user = new waitListUser(
             doc.id,
             doc.data().name,
             doc.data().username,
@@ -42,6 +42,7 @@ const getAllwaitList = async (req, res, next) => {
             doc.data().bDate,
             doc.data().gender,
             doc.data().surname,
+            doc.data().userId,
             doc.data().status
           );
           usersArray.push(user);

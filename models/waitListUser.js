@@ -13,7 +13,8 @@ class User {
       role,
       bDate,
       gender,
-      surname
+      surname,
+      userId
     ) {
       this.id = id;
       this.name = name;
@@ -29,6 +30,7 @@ class User {
       this.bDate=bDate;
       this.gender=gender;
       this.surname=surname;
+      this.userId=userId;
     }
   }
   module.exports = User;
