@@ -8,6 +8,7 @@ const userRoutes = require('./routes/users-routes');
 const productRoutes = require('./routes/products-routes');
 const orderRoutes = require('./routes/orders-routes');
 const favoriteRoutes = require('./routes/favorites-routes');
+const waitListRoutes = require('./routes/waitList-routes');
 const {format} = require('util');
 const app = express();
 const Multer = require('multer');
@@ -25,9 +26,13 @@ const multer = Multer({
  // A bucket is a container for objects (files).
 const bucket = storage.bucket(process.env.STORAGE_BUCKET);
 
-
+const corsOptions ={
+  origin:'*', 
+  credentials:true,            //access-control-allow-credentials:true
+  optionSuccessStatus:200,
+}
 app.use(express.json());
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(bodyParser.json());
 app.use(
     bodyParser.urlencoded({
@@ -37,7 +42,11 @@ app.use(
 
 app.use(cookieParser());
 
-
+app.post('/api/loginwithGoogle', (req, res) => {
+  // Handle POST request here
+  console.log(req.body); // Print the POST request body to console
+  res.redirect('http://localhost:4200/dashboard/')
+});
 app.post('/upload', multer.single('filename'), (req, res, next) => {
    if (!req.file) {
      res.status(400).json({message:'No file uploaded.'});
@@ -71,7 +80,7 @@ app.post('/upload', multer.single('filename'), (req, res, next) => {
    if (!filename) {
     return res.status(404).json({ error: 'Dosya bulunamadı.' });
   }
-  
+
    file.createReadStream()
      .on('error', (err) => {
        console.error(err);
@@ -92,12 +101,12 @@ app.post('/upload', multer.single('filename'), (req, res, next) => {
  });
 
 
-
-
+ app.use('/api' , waitListRoutes.routes);
 app.use('/api', userRoutes.routes);
 app.use('/api', productRoutes.routes);
 app.use('/api' , orderRoutes.routes);
 app.use('/api' , favoriteRoutes.routes);
+
 // app.use('/api' ,uploadFile.routes);
 
 

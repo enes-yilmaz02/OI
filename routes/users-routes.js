@@ -4,6 +4,7 @@ const {
   addUser,
   getAllUsers,
   getUser,
+  getUserWithEmail,
   updateUser,
   deleteUser,
   loginUser,
@@ -80,6 +81,9 @@ router.get('/users/:userId/carts', getAllCarts);
 
 // get user by id
 router.get('/users/:userId', getUser);
+
+// get user by email
+router.get('/users/email/:email', getUserWithEmail);
 
 // get order by id
 router.get('/users/:userId/orders/:orderId', getOrder);

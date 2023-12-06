@@ -91,6 +91,28 @@ const getUser = async (req, res, next) => {
   }
 };
 
+const getUserWithEmail = async (req, res, next) => {
+  try {
+    const email = req.params.email;
+    const usersSnapshot = await firestore.collection("users").where("email", "==", email).get();
+
+    if (usersSnapshot.empty) {
+      res.status(404).send("E-posta kullanıcıya ait bilgilere ulaşamadı.");
+    } else {
+      // Kullanıcıyı temsil eden belge
+      const userDoc = usersSnapshot.docs[0];
+
+      // Belgeyi JSON formatına çevirerek tüm bilgileri al
+      const userData = userDoc.data();
+      
+      res.send(userData);
+      console.log(userData);
+    }
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+};
+
 const updateUser = async (req, res, next) => {
   try {
     const userId = req.params.userId;
@@ -144,8 +166,8 @@ const loginUser = async (req, res) => {
         res.cookie("jwt", token, {
           httpOnly:true
         });
-
         return res.status(200).json({ message: user, token: token });
+        
       } else {
         return res.status(403).json({ error: "Invalid Credentials2" });
       }
@@ -157,6 +179,8 @@ const loginUser = async (req, res) => {
     });
   }
 };
+
+
 
 const logout = (req, res) => {
   try {
@@ -175,6 +199,7 @@ module.exports = {
   addUser,
   getAllUsers,
   getUser,
+  getUserWithEmail,
   updateUser,
   deleteUser,
   addUserAdmin,
