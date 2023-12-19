@@ -9,7 +9,9 @@ const {
   deleteUser,
   loginUser,
   logout,
-  addUserAdmin
+  addUserAdmin,
+  updateUserPassword,
+  loginUserWithEmail
 } = require('../controllers/userContollers');
 const {
   addOrder,
@@ -116,6 +118,9 @@ router.delete('/users/:userId/carts', clearCarts);
 // update user
 router.put('/users/:userId', updateUser);
 
+// update user password
+router.put('/users/:userId/password', updateUserPassword);
+
 // update order
 router.put('/users/:userId/orders/:orderId', updateOrder);
 
@@ -127,6 +132,9 @@ router.put('/users/:userId/carts/:cartId', updateCart);
 
 // login user
 router.post('/login', loginUser);
+
+// login user with email
+router.post('/loginEmail', loginUserWithEmail);
 
 // logout user
 router.post('/logout', logout);

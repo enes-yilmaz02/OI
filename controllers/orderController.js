@@ -138,19 +138,16 @@ const getAllCreoterOrders = async (req, res, next) => {
 
 const getAllCreoterOrdersById = async (req, res, next) => {
   try {
-    const creoterId = req.params.creoterId; // req.params'tan creoterId'yi çıkarın
-    console.log(creoterId);
+    const creoterId = req.params.creoterId;
 
-    // creoterId tanımlı mı kontrol et
     if (!creoterId) {
       return res.status(400).send("creoterId tanımsız");
     }
 
     const creoterOrdersCollectionRef = firestore.collection("creoterOrders");
 
-    const data = await creoterOrdersCollectionRef.where("orders.creoterId", "==", creoterId).get();
-
-    console.log(data);
+    // CreoterId'ye göre filtreleme
+    const data = await creoterOrdersCollectionRef.get();
 
     const ordersArray = [];
 
@@ -160,10 +157,24 @@ const getAllCreoterOrdersById = async (req, res, next) => {
       data.forEach((doc) => {
         const orderData = doc.data();
 
-        // Eğer Order modelinde diğer özellikler varsa (örneğin, totalAmount gibi)
-        // Bu özellikleri ihtiyaca göre order örneğine ekleyin
+        // Siparişin içindeki her bir ürünün product nesnesine ulaşma
+        const ordersWithMatchingCreoterId = orderData.orders
+          .filter((orderItem) => orderItem.product.creoterId === creoterId)
+          .map((orderItem) => {
+            return {
+              ...orderItem,
+              product: {
+                ...orderItem.product,
+                creoterId: creoterId
+              }
+            };
+          });
 
-        ordersArray.push(orderData);
+        // Eğer eşleşen ürün varsa, orders içine ekleyin
+        if (ordersWithMatchingCreoterId.length > 0) {
+          orderData.orders = ordersWithMatchingCreoterId;
+          ordersArray.push(orderData);
+        }
       });
 
       res.send(ordersArray);
@@ -172,6 +183,10 @@ const getAllCreoterOrdersById = async (req, res, next) => {
     res.status(500).send(error.message);
   }
 };
+
+
+
+
 
 
 const getOrder = async (req, res, next) => {

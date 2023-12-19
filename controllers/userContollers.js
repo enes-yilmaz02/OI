@@ -102,16 +102,26 @@ const getUserWithEmail = async (req, res, next) => {
       // Kullanıcıyı temsil eden belge
       const userDoc = usersSnapshot.docs[0];
 
+      // Belge ID'sini al
+      const docId = userDoc.id;
+
       // Belgeyi JSON formatına çevirerek tüm bilgileri al
       const userData = userDoc.data();
       
-      res.send(userData);
-      console.log(userData);
+      // Belge ID'sini response'a ekle
+      const responseData = {
+        id: docId,
+        ...userData
+      };
+
+      res.send(responseData);
+      console.log(responseData);
     }
   } catch (error) {
     res.status(500).send(error.message);
   }
 };
+
 
 const updateUser = async (req, res, next) => {
   try {
@@ -119,6 +129,26 @@ const updateUser = async (req, res, next) => {
     const data = req.body;
     const user = await firestore.collection("users").doc(userId);
     await user.update(data);
+    res.status(200).json({message:'sucessfuly'});
+  } catch (error) {
+    res.status(400).send(error.message);
+  }
+};
+
+
+const updateUserPassword = async (req, res, next) => {
+  try {
+    const userId = req.params.userId;
+    const data = req.body;
+       // password'u hashle
+       const hashedPassword = await bcrypt.hash(data.password, 10);
+       const hashedCPassword = await bcrypt.hash(data.confirmpassword, 10);
+   
+       // hashlenmiş password'u veriye ekle
+       data.password = hashedPassword;
+       data.confirmpassword = hashedCPassword;
+       const user = await firestore.collection("users").doc(userId);
+       await user.update(data);
     res.status(200).json({message:'sucessfuly'});
   } catch (error) {
     res.status(400).send(error.message);
@@ -180,6 +210,41 @@ const loginUser = async (req, res) => {
   }
 };
 
+const loginUserWithEmail = async (req, res) => {
+  try {
+    const { email } = req.params;
+
+    // Tüm kullanıcıları al
+    const users = await firestore.collection("users").get();
+
+    // Kullanıcıları filtrele
+    const userQuery = users.docs.filter((doc) => doc.data().email === email);
+
+    if (!userQuery[0]) {
+      return res.status(403).json({ error: "Invalid Credentials1" });
+    }
+
+    const user = userQuery[0].data();
+
+    const token = jwt.sign(
+      { id: userQuery[0].id },
+      process.env.JWT_SECRET,
+      { expiresIn: "1h" }
+    );
+
+    res.cookie("jwt", token, {
+      httpOnly:true
+    });
+    return res.status(200).json({ message: user, token: token });
+  
+  } catch (error) {
+    res.status(500).json({
+      succeded: false,
+      error,
+    });
+  }
+};
+
 
 
 const logout = (req, res) => {
@@ -205,4 +270,6 @@ module.exports = {
   addUserAdmin,
   loginUser,
   logout,
+  updateUserPassword,
+  loginUserWithEmail
 };

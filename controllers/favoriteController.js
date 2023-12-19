@@ -37,7 +37,7 @@ const getAllFavorites = async (req, res, next) => {
     const favoritesArray = [];
 
     if (data.empty) {
-      res.send(favoritesArray);
+      res.json([]);
     } else {
       data.forEach(async (doc) => {
         const favoriteData = doc.data();
@@ -104,7 +104,7 @@ const getFavorite = async (req, res, next) => {
     const favoriteSnapshot = await favoriteDocRef.get();
 
     if (!favoriteSnapshot.exists) {
-      res.status(404).send("Order with the given ID not found");
+      res.json([]);
     } else {
       res.send(favoriteSnapshot.data());
     }
@@ -130,9 +130,7 @@ const getFavoriteById = async (req, res, next) => {
       .get();
 
     if (favoritesSnapshot.empty) {
-      // Belirtilen ürün ID'sine sahip favori bulunamadı
-     res.status(404).json({ message: 'Belirtilen ürün favori olarak bulunamadı.' });
-     return;
+      res.json([]);
     }
 
     // İlk bulunan favori belgesini döndür
@@ -203,8 +201,7 @@ const deleteFavoriteById = async (req, res, next) => {
       .get();
 
     if (favoritesSnapshot.empty) {
-      // Favoriler içinde belirli bir ürünü içeren belgeyi silin
-       return res.status(404).json({ message: "Ürün bulunamadı." });
+      res.json([]);
     }
 
     // Favoriler içinde belirli bir ürünü içeren belgeyi silin
