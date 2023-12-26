@@ -160,7 +160,7 @@ const getProductByCategory = async (req, res, next) => {
     }
     const productsRef = firestore.collection("products");
     const querySnapshot = await productsRef
-      .where("category.name", "==", categoryName)
+      .where("category", "==", categoryName)
       .get();
 
     if (querySnapshot.empty) {

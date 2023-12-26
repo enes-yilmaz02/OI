@@ -8,6 +8,8 @@ const addCart = async (req, res, next) => {
   try {
     const userId = req.params.userId;
     const data = req.body;
+    const cartId= data.product.id;
+    console.log(cartId)
 
     // Kullanıcının belgesini alın
     const userDocRef = firestore.collection("users").doc(userId);
@@ -16,8 +18,8 @@ const addCart = async (req, res, next) => {
     await userDocRef.set({}, { merge: true });
 
     // Kullanıcının orders koleksiyonuna ürün ekleyin
-    const cartsCollectionRef = userDocRef.collection("carts");
-    await cartsCollectionRef.add(data);
+    const cartsCollectionRef = userDocRef.collection("carts").doc(cartId);
+    await cartsCollectionRef.set(data);
 
     res.status(200).json({ message: "ürün başarıyla eklendi." });
   } catch (error) {

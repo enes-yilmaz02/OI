@@ -3,7 +3,7 @@ const firebase = require("../db");
 const Order = require("../models/orders");
 const firestore = firebase.firestore();
 
-// addOrder fonksiyonunu güncelliyoruz
+
 const addOrder = async (req, res, next) => {
   try {
     const userId = req.params.userId;
@@ -25,12 +25,10 @@ const addOrder = async (req, res, next) => {
   }
 };
 
-// addOrder fonksiyonunu güncelliyoruz
+
 const addCreoterOrder = async (req, res, next) => {
   try {
     const data = req.body;
-
-    // Kullanıcının belgesini alın
     const creoterDocRef = firestore.collection("creoterOrders");
     await creoterDocRef.add(data);
 
@@ -39,6 +37,20 @@ const addCreoterOrder = async (req, res, next) => {
     res.status(400).send(error.message);
   }
 };
+
+
+
+const updateOrders = async (snapshot, mergedData) => {
+  const batch = firestore.batch();
+  snapshot.forEach((doc) => {
+    const productId = doc.data().productId;
+    const updatedData = mergedData[productId];
+    const creoterDocRef = firestore.collection("creoterOrders").doc(productId);
+    batch.set(creoterDocRef, updatedData);
+  });
+  await batch.commit();
+};
+
 
 const getAllOrders = async (req, res, next) => {
   try {

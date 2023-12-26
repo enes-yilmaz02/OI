@@ -7,6 +7,8 @@ const addFavorite = async (req, res, next) => {
   try {
     const userId = req.params.userId;
     const data = req.body;
+    const productId = data.id;
+    console.log(data.id);
     // Kullanıcının belgesini alın
     const userDocRef = firestore.collection("users").doc(userId);
 
@@ -14,8 +16,8 @@ const addFavorite = async (req, res, next) => {
     await userDocRef.set({}, { merge: true });
 
     // Kullanıcının orders koleksiyonuna ürün ekleyin
-    const favoritesCollectionRef = userDocRef.collection("favorites");
-    await favoritesCollectionRef.add(data);
+    const favoritesCollectionRef = userDocRef.collection("favorites").doc(productId);
+    await favoritesCollectionRef.set(data);
 
     res.status(200).json({ message: "ürün başarıyla kaydedildi." });
   } catch (error) {
@@ -166,8 +168,11 @@ const updateFavorite = async (req, res, next) => {
 
 const deleteFavorite = async (req, res, next) => {
   try {
+    console.log('calıştı 1');
     const userId = req.params.userId;
+    console.log(userId);
     const favoriteId = req.params.favoriteId;
+    console.log(favoriteId);
 
     // Kullanıcının belgesini alın
     const userDocRef = firestore.collection("users").doc(userId);

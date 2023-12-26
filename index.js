@@ -109,7 +109,6 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Google ile giriş sayfası
 app.get('/auth/google',
   passport.authenticate('google', { scope: ['email', 'profile'] })
 );
@@ -125,19 +124,23 @@ app.get(
       const userRole = "USER";
       const userEmail = req.user.email;
       
+      // Firestore kullanarak kullanıcıyı kaydet
       const userRef = firestore.collection("users").doc(req.user.id);
 
       await userRef.set({
         name: req.user.given_name,
         surname: req.user.family_name,
         email: userEmail,
-        role:userRole
+        role: userRole
       });
 
       console.log("Kullanıcı Firestore'a eklendi.");
-      
-      res.redirect(`http://localhost:8080/api/loginEmail/${userEmail}`);
 
+     
+      const token = generateToken(userEmail);
+
+      console.log(token)
+      res.redirect(`http://localhost:4200/pages?token=${token}`);
     } catch (error) {
       console.error("Kullanıcı kaydedilirken hata:", error);
       res.redirect("http://localhost:4200/notfound");
@@ -145,27 +148,13 @@ app.get(
   }
 );
 
-// Token oluşturmak için örnek bir fonksiyon
+
 function generateToken(email) {
-  // Burada token oluşturma mantığını uygulayabilirsiniz
-  // Örneğin, jsonwebtoken paketini kullanabilirsiniz
   const jwt = require('jsonwebtoken');
-  const secretKey = process.env.JWT_SECRET; // Değiştirmeniz gereken kısmı burasıdır
+  const secretKey = process.env.JWT_SECRET; 
   const token = jwt.sign({ email }, secretKey, { expiresIn: '1h' });
   return token;
 }
-
-// Giriş yaptıktan sonra anasayfada gösterilecek sayfa
-app.get('/auth/google/login', (req, res) => {
-  if (req.isAuthenticated()) {
-    
-    const userRole = req.user.role || 'USER';
-    res.redirect("http://localhost:4200/pages");
-    } else {
-      console.log('3');
-    res.send('Hello, Guest!');
-  }
-});
 
 app.use("auth/logout", (req, res) => {
   req.session.destroy();

@@ -140,11 +140,10 @@ const updateUserPassword = async (req, res, next) => {
   try {
     const userId = req.params.userId;
     const data = req.body;
-       // password'u hashle
+      
        const hashedPassword = await bcrypt.hash(data.password, 10);
        const hashedCPassword = await bcrypt.hash(data.confirmpassword, 10);
    
-       // hashlenmiş password'u veriye ekle
        data.password = hashedPassword;
        data.confirmpassword = hashedCPassword;
        const user = await firestore.collection("users").doc(userId);
@@ -165,14 +164,54 @@ const deleteUser = async (req, res, next) => {
   }
 };
 
+
+const checkPassword = async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    console.log(userId);
+    
+    const { password } = req.body;
+    console.log(password)
+
+    const userDoc = await firestore.collection("users").doc(userId).get();
+
+    if (!userDoc.exists) {
+      return res.status(403).json({ error: "Invalid Credentials1" });
+    }
+
+    const user = userDoc.data();
+
+    bcrypt.compare(password, user.password, function (err, result) {
+      if (err) {
+        return res.status(500).json({
+          succeded: false,
+          error: err,
+        });
+      }
+
+      if (result) {
+        res.status(200).json({ success: true, message: "Password is correct" });
+      } else {
+        
+        res.status(403).json({ success: false, error: "Invalid Password" });
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      succeded: false,
+      error,
+    });
+  }
+};
+
 const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Tüm kullanıcıları al
+
     const users = await firestore.collection("users").get();
 
-    // Kullanıcıları filtrele
+ 
     const userQuery = users.docs.filter((doc) => doc.data().email === email);
 
     if (!userQuery[0]) {
@@ -181,7 +220,6 @@ const loginUser = async (req, res) => {
 
     const user = userQuery[0].data();
 
-    // compare passwords
     bcrypt.compare(password, user.password, function (err, result) {
       if (result === true) {
         const token = jwt.sign(
@@ -190,9 +228,7 @@ const loginUser = async (req, res) => {
           { expiresIn: "1h" }
         );
         
-        //res.setHeader('Authorization', `Bearer ${token}`);
         
-        // // // Token'i istemciye gönder (örneğin, tarayıcıya)
         res.cookie("jwt", token, {
           httpOnly:true
         });
@@ -214,10 +250,8 @@ const loginUserWithEmail = async (req, res) => {
   try {
     const { email } = req.params;
 
-    // Tüm kullanıcıları al
     const users = await firestore.collection("users").get();
-
-    // Kullanıcıları filtrele
+    
     const userQuery = users.docs.filter((doc) => doc.data().email === email);
 
     if (!userQuery[0]) {
@@ -249,13 +283,9 @@ const loginUserWithEmail = async (req, res) => {
 
 const logout = (req, res) => {
   try {
-    // JWT cookie'sini temizle
     res.clearCookie("jwt");
-
-    // Başarılı cevap gönder
     return res.status(200).json({ message: 'çıkış işlemi başarılı'});
   } catch (error) {
-    // Hata durumunda hata mesajını gönder
     res.status(500).send("Error clearing token: " + error.message);
   }
 };
@@ -271,5 +301,6 @@ module.exports = {
   loginUser,
   logout,
   updateUserPassword,
-  loginUserWithEmail
+  loginUserWithEmail,
+  checkPassword
 };

@@ -11,7 +11,8 @@ const {
   logout,
   addUserAdmin,
   updateUserPassword,
-  loginUserWithEmail
+  loginUserWithEmail,
+  checkPassword
 } = require('../controllers/userContollers');
 const {
   addOrder,
@@ -132,6 +133,9 @@ router.put('/users/:userId/carts/:cartId', updateCart);
 
 // login user
 router.post('/login', loginUser);
+
+// check password
+router.post('/checkpassword/:userId', checkPassword);
 
 // login user with email
 router.post('/loginEmail', loginUserWithEmail);
