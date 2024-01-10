@@ -23,16 +23,15 @@ const storage = new Storage();
 const multer = Multer({
   storage: Multer.memoryStorage(),
   limits: {
-    fileSize: 5 * 1024 * 1024, // no larger than 5mb, you can change as needed.
+    fileSize: 5 * 1024 * 1024, 
   },
 });
 
-// A bucket is a container for objects (files).
 const bucket = storage.bucket(process.env.STORAGE_BUCKET);
 
 const corsOptions = {
   origin: "http://localhost:4200",
-  credentials: true, //access-control-allow-credentials:true
+  credentials: true, 
   optionSuccessStatus: 200,
 };
 app.use(express.json());
