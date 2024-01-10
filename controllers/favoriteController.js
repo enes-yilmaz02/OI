@@ -5,17 +5,14 @@ const firestore = firebase.firestore();
 
 const addFavorite = async (req, res, next) => {
   try {
+    console.log('burada çalışıyor:');
     const userId = req.params.userId;
     const data = req.body;
     const productId = data.id;
-    console.log(data.id);
-    // Kullanıcının belgesini alın
     const userDocRef = firestore.collection("users").doc(userId);
-
-    // Eğer belge (document) yoksa oluştur
     await userDocRef.set({}, { merge: true });
 
-    // Kullanıcının orders koleksiyonuna ürün ekleyin
+    
     const favoritesCollectionRef = userDocRef.collection("favorites").doc(productId);
     await favoritesCollectionRef.set(data);
 
@@ -27,17 +24,14 @@ const addFavorite = async (req, res, next) => {
 
 const getAllFavorites = async (req, res, next) => {
   try {
-    // Kullanıcının kimlik bilgilerini çöz
+    
     const userId = req.params.userId;
-
     const favoritesCollectionRef = firestore
       .collection("users")
       .doc(userId)
       .collection("favorites");
-
     const data = await favoritesCollectionRef.get();
     const favoritesArray = [];
-
     if (data.empty) {
       res.json([]);
     } else {
@@ -49,7 +43,6 @@ const getAllFavorites = async (req, res, next) => {
           status: favoriteData.status,
         };
 
-        // Eğer favori ürünleri varsa, bunları çek ve diziye ekle
         if (favoriteData.products) {
           const productsArray = await Promise.all(
             favoriteData.products.map(async (productRef) => {
@@ -74,10 +67,8 @@ const getAllFavorites = async (req, res, next) => {
               };
             })
           );
-
           favorite.products = productsArray;
         }
-
         favoritesArray.push(favorite);
       });
 
@@ -91,17 +82,11 @@ const getAllFavorites = async (req, res, next) => {
 
 const getFavorite = async (req, res, next) => {
   try {
-    const userId = req.params.userId; // Değişiklik: userId parametresi
-
-    const favoriteId = req.params.favoriteId; // Değişiklik: orderId parametresi
-
-    // Kullanıcının belgesini alın
+    const userId = req.params.userId; 
+    const favoriteId = req.params.favoriteId; 
+    
     const userDocRef = firestore.collection("users").doc(userId);
-
-    // Kullanıcının orders koleksiyonuna erişin
     const favoritesCollectionRef = userDocRef.collection("favorites");
-
-    // Belirli bir sipariş ID'si ile belgeyi alın
     const favoriteDocRef = favoritesCollectionRef.doc(favoriteId);
     const favoriteSnapshot = await favoriteDocRef.get();
 
@@ -119,14 +104,8 @@ const getFavoriteById = async (req, res, next) => {
   try {
     const userId = req.params.userId;
     const productId = req.params.productId;
-
-    // Kullanıcının belgesini alın
     const userDocRef = firestore.collection("users").doc(userId);
-
-    // Kullanıcının favorites koleksiyonunu alın
     const favoritesCollectionRef = userDocRef.collection("favorites");
-
-    // Kullanıcının favorilerini getirin
     const favoritesSnapshot = await favoritesCollectionRef
       .where("id", "==", productId)
       .get();
@@ -134,10 +113,8 @@ const getFavoriteById = async (req, res, next) => {
     if (favoritesSnapshot.empty) {
       res.json([]);
     }
-
-    // İlk bulunan favori belgesini döndür
     const favoriteDoc = favoritesSnapshot.docs[0];
-
+    console.log(favoriteDoc.data())
     res.status(200).json(favoriteDoc.data());
   } catch (error) {
     return;
@@ -150,13 +127,8 @@ const updateFavorite = async (req, res, next) => {
     const favoriteId = req.params.favoriteId;
     const updatedData = req.body;
 
-    // Kullanıcının belgesini alın
     const userDocRef = firestore.collection("users").doc(userId);
-
-    // Kullanıcının orders koleksiyonuna erişin
     const favoritesCollectionRef = userDocRef.collection("favorites");
-
-    // Belirli bir sipariş ID'si ile belgeyi güncelleyin
     const favoriteDocRef = favoritesCollectionRef.doc(favoriteId);
     await favoriteDocRef.update(updatedData);
 
@@ -168,19 +140,11 @@ const updateFavorite = async (req, res, next) => {
 
 const deleteFavorite = async (req, res, next) => {
   try {
-    console.log('calıştı 1');
     const userId = req.params.userId;
-    console.log(userId);
     const favoriteId = req.params.favoriteId;
-    console.log(favoriteId);
 
-    // Kullanıcının belgesini alın
     const userDocRef = firestore.collection("users").doc(userId);
-
-    // Kullanıcının orders koleksiyonuna erişin
     const favoritesCollectionRef = userDocRef.collection("favorites");
-
-    // Belirli bir sipariş ID'si ile belgeyi silin
     await favoritesCollectionRef.doc(favoriteId).delete();
 
     res.status(200).json({ message: "ürün başarıyla silindi." });
@@ -194,13 +158,8 @@ const deleteFavoriteById = async (req, res, next) => {
     const userId = req.params.userId;
     const productId = req.params.productId;
 
-    // Kullanıcının belgesini alın
     const userDocRef = firestore.collection("users").doc(userId);
-
-    // Kullanıcının favorites koleksiyonunu alın
     const favoritesCollectionRef = userDocRef.collection("favorites");
-
-    // Kullanıcının favorilerini getirin
     const favoritesSnapshot = await favoritesCollectionRef
       .where("id", "==", productId)
       .get();
@@ -208,8 +167,6 @@ const deleteFavoriteById = async (req, res, next) => {
     if (favoritesSnapshot.empty) {
       res.json([]);
     }
-
-    // Favoriler içinde belirli bir ürünü içeren belgeyi silin
     favoritesSnapshot.forEach(async (favoriteDoc) => {
       await favoriteDoc.ref.delete();
     });
@@ -220,6 +177,119 @@ const deleteFavoriteById = async (req, res, next) => {
   }
 };
 
+
+
+/* Ex Favorites Functions */
+
+const addExFavorite = async (req, res, next) => {
+  try {
+    const userId = req.params.userId;
+    const data = req.body;
+    const productId = data.productId;
+    const userDocRef = firestore.collection("users").doc(userId);
+    await userDocRef.set({}, { merge: true });
+
+    const favoritesCollectionRef = userDocRef.collection("exfavorites").doc(productId);
+    await favoritesCollectionRef.set(data);
+
+    res.status(200).json({ message: "Favori başarıyla eklendi"});
+  } catch (error) {
+    res.status(400).send(error.message);
+  }
+};
+
+const getAllExFavorites = async (req, res, next) => {
+  try {
+    
+    const userId = req.params.userId;
+    const favoritesCollectionRef = firestore
+      .collection("users")
+      .doc(userId)
+      .collection("exfavorites");
+    const data = await favoritesCollectionRef.get();
+    const favoritesArray = [];
+    if (data.empty) {
+      res.json([]);
+    } else {
+      data.forEach(async (doc) => {
+        const favoriteData = doc.data();
+        const favorite = {
+          id: doc.id,
+          ...favoriteData,
+          status: favoriteData.status,
+        };
+
+        if (favoriteData.products) {
+          const productsArray = await Promise.all(
+            favoriteData.products.map(async (productRef) => {
+              const productDoc = await productRef.get();
+              const productData = productDoc.data();
+              return {
+                id: productDoc.id,
+                code: productData.code,
+                name: productData.name,
+                category: productData.category,
+                file: productData.file,
+                priceStacked: productData.priceStacked,
+                quantity: productData.quantity,
+                selectedStatus: productData.selectedStatus,
+                valueRating: productData.valueRating,
+                companyName: productData.companyName,
+                taxNumber: productData.taxNumber,
+                email: productData.email,
+                description: productData.description,
+                creoterId: productData.creoterId,
+                userId: productData.userId,
+              };
+            })
+          );
+          favorite.products = productsArray;
+        }
+        favoritesArray.push(favorite);
+      });
+
+      res.send(favoritesArray);
+    }
+  } catch (error) {
+    res.status(400).send(error.message);
+  }
+};
+
+const getExFavorite = async (req, res, next) => {
+  try {
+    const userId = req.params.userId; 
+    const favoriteId = req.params.productId; 
+    const userDocRef = firestore.collection("users").doc(userId);
+    const favoritesCollectionRef = userDocRef.collection("exfavorites");
+    const favoriteDocRef = favoritesCollectionRef.doc(favoriteId);
+    const favoriteSnapshot = await favoriteDocRef.get();
+
+    if (!favoriteSnapshot.exists) {
+      res.json([]);
+    } else {
+      res.send(favoriteSnapshot.data());
+    }
+  } catch (error) {
+    res.status(400).send(error.message);
+  }
+};
+
+const deleteExFavorite = async (req, res, next) => {
+  try {
+    const userId = req.params.userId;
+    const favoriteId = req.params.favoriteId;
+    
+   
+    const userDocRef = firestore.collection("users").doc(userId);
+    const favoritesCollectionRef = userDocRef.collection("exfavorites");
+    await favoritesCollectionRef.doc(favoriteId).delete();
+
+    res.status(200).json({ message: "ürün başarıyla silindi." });
+  } catch (error) {
+    res.status(400).send(error.message);
+  }
+};
+
 module.exports = {
   addFavorite,
   getAllFavorites,
@@ -227,5 +297,12 @@ module.exports = {
   updateFavorite,
   deleteFavorite,
   deleteFavoriteById,
-  getFavoriteById
+  getFavoriteById,
+
+  // Ex Favorites exports functions
+  addExFavorite,
+  getAllExFavorites,
+  getExFavorite,
+  deleteExFavorite
+
 };

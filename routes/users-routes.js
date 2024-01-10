@@ -1,4 +1,4 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
 const {
   addUser,
@@ -12,137 +12,95 @@ const {
   addUserAdmin,
   updateUserPassword,
   loginUserWithEmail,
-  checkPassword
-} = require('../controllers/userContollers');
+  checkPassword,
+} = require("../controllers/userContollers");
 const {
   addOrder,
   getAllOrders,
   getOrder,
   updateOrder,
   deleteOrder,
-  addCreoterOrder
-} = require('../controllers/orderController');
+  addCreoterOrder,
+  getAllCreoterOrders
+} = require("../controllers/orderController");
 
-const {addFavorite, 
-    getAllFavorites, 
-    getFavorite,
-    updateFavorite,
-    deleteFavorite,
-    deleteFavoriteById,
-    getFavoriteById
-   } = require('../controllers/favoriteController');
+const {
+  addFavorite,
+  getAllFavorites,
+  getFavorite,
+  updateFavorite,
+  deleteFavorite,
+  deleteFavoriteById,
+  getFavoriteById,
+  addExFavorite,
+  getAllExFavorites,
+  getExFavorite,
+  deleteExFavorite,
+} = require("../controllers/favoriteController");
 
-const {addCart, 
-    getAllCarts, 
-    getCart,
-    updateCart,
-    deleteCart,
-    clearCarts
-   } = require('../controllers/cartController');
+const {
+  addCart,
+  getAllCarts,
+  getCart,
+  updateCart,
+  deleteCart,
+  clearCarts,
+} = require("../controllers/cartController");
 
-const { sendEmail } = require('../controllers/sendMail');
+const { sendEmail } = require("../controllers/sendMail");
 
-// send email
-router.post('/users/:userId/sendEmail', sendEmail);
+/*  Email post actions */
+router.post("/users/:userId/sendEmail", sendEmail); // send email
+router.post("/users/sendEmail", sendEmail); // send email
 
-// send email
-router.post('/users/sendEmail', sendEmail);
+/*  post actions */
+router.post("/users", addUser); // add user
+router.post("/users-admin", addUserAdmin); // add user with email
+router.post("/users/:userId/orders", addOrder); // add order
+router.post("/orders", addCreoterOrder); // add order in creoterorders collection
+router.post("/users/:userId/favorites/:favoriteId", addFavorite); // add favorite
+router.post("/users/:userId/carts/:cartId", addCart); // add cart
+router.post("/users/:userId/exfavorites/:exfavoriteId", addExFavorite); // add  exfavorites colecction
 
-// add user
-router.post('/users', addUser);
+/* get actions */
+router.get("/users", getAllUsers); // get all users
+router.get("/users/:userId/orders", getAllOrders); // get all orders
+router.get("/users/:userId/favorites", getAllFavorites); // get all favorites
+router.get("/users/:userId/exfavorites", getAllExFavorites); // get all ex favorites
+router.get("/users/:userId/favorites/product/:productId", getFavoriteById); // get favorites by id
+router.get("/users/:userId/exfavorites/product/:productId", getExFavorite); // get ex favorites by id
+router.get("/users/:userId/carts", getAllCarts); // get all carts
+router.get("/users/:userId", getUser); // get user by id
+router.get("/users/email/:email", getUserWithEmail); // get user by email
+router.get("/users/:userId/orders/:orderId", getOrder); // get order by id
+router.get("/users/:userId/favorites/:favoriteId", getFavorite); // get favorite by id
+router.get("/users/:userId/carts/:cartId", getCart); // get cart by id
 
-// add user
-router.post('/users-admin', addUserAdmin);
+/* delete actions */
+router.delete("/users/:userId", deleteUser); // delete user
+router.delete("/users/:userId/orders/:orderId", deleteOrder); // delete order
+router.delete("/users/:userId/favorites/:favoriteId", deleteFavorite); // delete favorite
+router.delete("/users/:userId/exfavorites/:favoriteId", deleteExFavorite); // delete ex favorite by id
+router.delete(
+  "/users/:userId/favorites/product/:productId",
+  deleteFavoriteById
+); // delete favorite by id
+router.delete("/users/:userId/carts/:cartId", deleteCart); // delete cart
+router.delete("/users/:userId/carts", clearCarts); // delete all carts
 
-// add order
-router.post('/users/:userId/orders', addOrder);
+/* put actions */
+router.put("/users/:userId", updateUser); // update user
+router.put("/users/:userId/password", updateUserPassword); // update user password
+router.put("/users/:userId/orders/:orderId", updateOrder); // update order
+router.put("/users/:userId/favorites/:favoriteId", updateFavorite); // update favorite
+router.put("/users/:userId/carts/:cartId", updateCart); // update cart
 
-// add order
-router.post('/orders', addCreoterOrder);
-
-
-// add favorite
-router.post('/users/:userId/favorites/:favoriteId', addFavorite);
-
-// add cart
-router.post('/users/:userId/carts/:cartId', addCart);
-
-// get all users
-router.get('/users', getAllUsers);
-
-// get all orders
-router.get('/users/:userId/orders', getAllOrders);
-
-// get all favorites
-router.get('/users/:userId/favorites', getAllFavorites);
-
-// get  favorites by id
-router.get('/users/:userId/favorites/product/:productId', getFavoriteById);
-
-// get all carts
-router.get('/users/:userId/carts', getAllCarts);
-
-// get user by id
-router.get('/users/:userId', getUser);
-
-// get user by email
-router.get('/users/email/:email', getUserWithEmail);
-
-// get order by id
-router.get('/users/:userId/orders/:orderId', getOrder);
-
-// get favorite by id
-router.get('/users/:userId/favorites/:favoriteId', getFavorite);
-
-// get cart by id
-router.get('/users/:userId/carts/:cartId', getCart);
-
-// delete user
-router.delete('/users/:userId', deleteUser);
-
-// delete order
-router.delete('/users/:userId/orders/:orderId', deleteOrder);
-
-// delete favorite
-router.delete('/users/:userId/favorites/:favoriteId', deleteFavorite);
-
-// delete favorite by id
-router.delete('/users/:userId/favorites/product/:productId', deleteFavoriteById);
-
-
-// delete cart
-router.delete('/users/:userId/carts/:cartId', deleteCart);
-
-// delete all carts
-router.delete('/users/:userId/carts', clearCarts);
-
-// update user
-router.put('/users/:userId', updateUser);
-
-// update user password
-router.put('/users/:userId/password', updateUserPassword);
-
-// update order
-router.put('/users/:userId/orders/:orderId', updateOrder);
-
-// update favorite
-router.put('/users/:userId/favorites/:favoriteId', updateFavorite);
-
-// update cart
-router.put('/users/:userId/carts/:cartId', updateCart);
-
-// login user
-router.post('/login', loginUser);
-
-// check password
-router.post('/checkpassword/:userId', checkPassword);
-
-// login user with email
-router.post('/loginEmail', loginUserWithEmail);
-
-// logout user
-router.post('/logout', logout);
+/* llogin post actions */
+router.post("/login", loginUser); // login user
+router.post("/checkpassword/:userId", checkPassword); // check password
+router.post("/loginEmail/:email", loginUserWithEmail); // login user with email
+router.post("/logout", logout); // logout user
 
 module.exports = {
-  routes: router
-}
+  routes: router,
+};

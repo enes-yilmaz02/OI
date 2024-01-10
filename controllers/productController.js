@@ -56,7 +56,6 @@ const getCreoterProducts = async (req, res, next) => {
     const creoterId = req.params.creoterId;
     const productsRef = firestore.collection("products");
 
-    // Use where clause to filter products based on creoterId
     const querySnapshot = await productsRef
       .where("creoterId", "==", creoterId)
       .get();
@@ -94,52 +93,11 @@ const getCreoterProducts = async (req, res, next) => {
   }
 };
 
-// const getAllCreoterProducts = async (req, res, next) => {
-//     try {
-
-//       const productsRef = firestore.collection("creoterOrders");
-//       const data = await productsRef.get();
-//       console.log(data);
-//       const productsArray = [];
-
-//       if (data.empty) {
-//         res.status(404).json({ message: "No product record found" });
-//       } else {
-//         data.forEach((doc) => {
-//           const product = new Product(
-//             doc.id,
-//             doc.data().code,
-//             doc.data().name,
-//             doc.data().category,
-//             doc.data().file,
-//             doc.data().priceStacked,
-//             doc.data().quantity,
-//             doc.data().selectedStatus,
-//             doc.data().valueRating,
-//             doc.data().companyName,
-//             doc.data().taxNumber,
-//             doc.data().email,
-//             doc.data().description,
-//             doc.data().creoterId,
-//              doc.data().createDate,
-//             doc.data().status
-//           );
-//           console.log(product);
-//           productsArray.push(product);
-//         });
-//         res.send(productsArray);
-//       }
-//     } catch (error) {
-//       res.status(400).json(error.message);
-//     }
-//   };
 
 const getProduct = async (req, res, next) => {
   try {
     const productId = req.params.productId;
-    console.log(productId);
     const product = await firestore.collection("products").doc(productId);
-    console.log(product);
     const data = await product.get();
     if (!data.exists) {
       res.status(404).json({ message: "ürün id getirme hatası" });
@@ -154,9 +112,8 @@ const getProduct = async (req, res, next) => {
 const getProductByCategory = async (req, res, next) => {
   try {
     const categoryName = req.params.category;
-    console.log(categoryName)
     if (!categoryName) {
-      return res.status(400).send("Category name is required");
+       res.status(400).send("Category name is required");
     }
     const productsRef = firestore.collection("products");
     const querySnapshot = await productsRef
@@ -164,7 +121,7 @@ const getProductByCategory = async (req, res, next) => {
       .get();
 
     if (querySnapshot.empty) {
-      return res.json([]);
+       res.json(querySnapshot);
     } else {
       const products = [];
       querySnapshot.forEach((doc) => {
@@ -180,12 +137,11 @@ const getProductByCategory = async (req, res, next) => {
 const getProductByPriceRange = async (req, res, next) => {
   try {
     const priceRange = req.params.price;
-
+    console.log(priceRange)
     if (!priceRange) {
       return res.status(400).send("Price range is required");
     }
 
-    // Price range'yi iki ayrı değere ayır
     const [minPrice, maxPrice] = priceRange.split("-").map(Number);
 
     if (isNaN(minPrice)) {
@@ -204,8 +160,9 @@ const getProductByPriceRange = async (req, res, next) => {
 
     const querySnapshot = await query.get();
 
+   
     if (querySnapshot.empty) {
-      return res.json([]);
+      return res.send([]);
     }
 
     const products = [];
@@ -245,7 +202,7 @@ const getProductByStockStatus = async (req, res, next) => {
         .get();
 
       if (querySnapshot.empty) {
-        res.json([]);
+        res.json(querySnapshot);
       } else {
         const products = [];
         querySnapshot.forEach((doc) => {
@@ -263,12 +220,8 @@ const getProductByStockStatus = async (req, res, next) => {
 const getProductByRating = async (req, res, next) => {
   try {
     const valueRating = req.params.rating;
-
     const rating = parseInt(valueRating.trim());
-
-    console.log(rating);
-
-    // Eğer rating bir sayı değilse veya 1-5 aralığında değilse, tüm ürünleri getir
+    
     if (isNaN(rating) || rating < 1 || rating > 5) {
       const productsRef = firestore.collection("products");
       const querySnapshot = await productsRef.get();
@@ -278,17 +231,17 @@ const getProductByRating = async (req, res, next) => {
         products.push(doc.data());
       });
 
-      res.send(products);
-      return; // Fonksiyonu sonlandır
+      return res.send(products);
+       
     }
 
     const productsRef = firestore.collection("products");
     const querySnapshot = await productsRef
-      .where("valueRating", "==", rating)
+      .where("valueRating", "==", String(rating))
       .get();
 
     if (querySnapshot.empty) {
-      return res.json([]);
+       return res.send([]);
     } else {
       const products = [];
       querySnapshot.forEach((doc) => {
@@ -304,7 +257,6 @@ const getProductByRating = async (req, res, next) => {
 const getProductByAlphabeticalFilter = async (req, res, next) => {
   try {
     const startingLetter = req.params.letter.toLowerCase();
-    console.log(startingLetter);
     if (
       !startingLetter ||
       startingLetter.length !== 1 ||
@@ -320,7 +272,7 @@ const getProductByAlphabeticalFilter = async (req, res, next) => {
       .get();
 
     if (querySnapshot.empty) {
-      return res.json([]);
+       res.json(querySnapshot);
     } else {
       const products = [];
       querySnapshot.forEach((doc) => {
@@ -332,6 +284,7 @@ const getProductByAlphabeticalFilter = async (req, res, next) => {
     res.status(500).send(error.message);
   }
 };
+
 // Yardımcı fonksiyon: Bir karakterin harf olup olmadığını kontrol et
 function isLetter(char) {
   return /^[a-zA-Z]$/.test(char);
@@ -341,8 +294,6 @@ const getCreoterProduct = async (req, res, next) => {
   try {
     const creoterId = req.params.creoterId;
     const productId = req.params.productId;
-    console.log(creoterId);
-    console.log(productId);
     const product = await firestore.collection("products").doc(productId);
     const data = await product.get();
     if (!data.exists) {
@@ -382,8 +333,7 @@ const updateCreoterProduct = async (req, res, next) => {
     const creoterId = req.params.creoterId;
     const productId = req.params.productId;
     const dataBody = req.body;
-    console.log(creoterId);
-    console.log(productId);
+
     const product = await firestore.collection("products").doc(productId);
     await product.update(dataBody);
     if (!data.exists) {
@@ -399,8 +349,6 @@ const deleteCreoterProduct = async (req, res, next) => {
   try {
     const creoterId = req.params.creoterId;
     const productId = req.params.productId;
-    console.log(creoterId);
-    console.log(productId);
     await firestore.collection("products").doc(productId).delete();
     res.status(200).json({ message: "ürün başarıyla silindi." });
   } catch (error) {
@@ -414,7 +362,6 @@ module.exports = {
   getProduct,
   updateProduct,
   deleteProduct,
-  //   getAllCreoterProducts,
   getCreoterProducts,
   getCreoterProduct,
   updateCreoterProduct,

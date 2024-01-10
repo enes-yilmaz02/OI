@@ -23,7 +23,6 @@ const router = express.Router();
 router.post('/products/upload', uploadFile);
 router.post('/products', addProduct);
 router.get('/products', getAllProducts);
-// router.get('/products/allcreoter', getAllCreoterProducts);
 router.get('/products/:productId', getProduct);
 router.get('/products/creoter/:creoterId', getCreoterProducts);
 router.get('/products/:creoter/creoterId/:productId', getCreoterProduct);

@@ -8,24 +8,30 @@ const addCart = async (req, res, next) => {
   try {
     const userId = req.params.userId;
     const data = req.body;
-    const cartId= data.product.id;
-    console.log(cartId)
+    const cartId = data.product.id;
 
-    // Kullanıcının belgesini alın
     const userDocRef = firestore.collection("users").doc(userId);
-
-    // Eğer belge (document) yoksa oluştur
     await userDocRef.set({}, { merge: true });
 
-    // Kullanıcının orders koleksiyonuna ürün ekleyin
-    const cartsCollectionRef = userDocRef.collection("carts").doc(cartId);
-    await cartsCollectionRef.set(data);
+    const cartsCollectionRef = userDocRef.collection("carts");
+    const cartDocRef = cartsCollectionRef.doc(cartId);
 
-    res.status(200).json({ message: "ürün başarıyla eklendi." });
+    const cartDoc = await cartDocRef.get();
+    if (cartDoc.exists) {
+      const existingQuantity = cartDoc.data().product.quantity || 0;
+      await cartDocRef.update({
+        "product.quantity": existingQuantity + 1,
+      });
+    } else {
+      await cartDocRef.set(data);
+    }
+
+    res.status(200).json({ message: "Ürün başarıyla eklendi." });
   } catch (error) {
     res.status(400).send(error.message);
   }
 };
+
 
 const getAllCarts = async (req, res, next) => {
   try {

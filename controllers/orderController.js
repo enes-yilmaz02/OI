@@ -40,16 +40,16 @@ const addCreoterOrder = async (req, res, next) => {
 
 
 
-const updateOrders = async (snapshot, mergedData) => {
-  const batch = firestore.batch();
-  snapshot.forEach((doc) => {
-    const productId = doc.data().productId;
-    const updatedData = mergedData[productId];
-    const creoterDocRef = firestore.collection("creoterOrders").doc(productId);
-    batch.set(creoterDocRef, updatedData);
-  });
-  await batch.commit();
-};
+// const updateOrders = async (snapshot, mergedData) => {
+//   const batch = firestore.batch();
+//   snapshot.forEach((doc) => {
+//     const productId = doc.data().productId;
+//     const updatedData = mergedData[productId];
+//     const creoterDocRef = firestore.collection("creoterOrders").doc(productId);
+//     batch.set(creoterDocRef, updatedData);
+//   });
+//   await batch.commit();
+// };
 
 
 const getAllOrders = async (req, res, next) => {
@@ -65,7 +65,7 @@ const getAllOrders = async (req, res, next) => {
     const ordersArray = [];
 
     if (data.empty) {
-      res.send(ordersArray);
+      res.send([]);
     } else {
       data.forEach(async (doc) => {
         const orderData = doc.data();
@@ -124,9 +124,6 @@ const getAllCreoterOrders = async (req, res, next) => {
     } else {
       data.forEach(async (doc) => {
         const orderData = doc.data();
-      
-
-        // Create an Order instance with productsArray and other properties
         const order = new Order(
           orderData.id || doc.id,
           orderData.orders,
@@ -134,10 +131,6 @@ const getAllCreoterOrders = async (req, res, next) => {
           orderData.userId,
           orderData.orderDate,
         );
-
-        // Assuming there are other properties in the Order model (e.g., totalAmount)
-        // Add those properties to the order instance as needed
-
         ordersArray.push(order);
       });
 
@@ -157,8 +150,6 @@ const getAllCreoterOrdersById = async (req, res, next) => {
     }
 
     const creoterOrdersCollectionRef = firestore.collection("creoterOrders");
-
-    // CreoterId'ye göre filtreleme
     const data = await creoterOrdersCollectionRef.get();
 
     const ordersArray = [];
@@ -168,8 +159,6 @@ const getAllCreoterOrdersById = async (req, res, next) => {
     } else {
       data.forEach((doc) => {
         const orderData = doc.data();
-
-        // Siparişin içindeki her bir ürünün product nesnesine ulaşma
         const ordersWithMatchingCreoterId = orderData.orders
           .filter((orderItem) => orderItem.product.creoterId === creoterId)
           .map((orderItem) => {
@@ -181,8 +170,6 @@ const getAllCreoterOrdersById = async (req, res, next) => {
               }
             };
           });
-
-        // Eğer eşleşen ürün varsa, orders içine ekleyin
         if (ordersWithMatchingCreoterId.length > 0) {
           orderData.orders = ordersWithMatchingCreoterId;
           ordersArray.push(orderData);
@@ -203,17 +190,11 @@ const getAllCreoterOrdersById = async (req, res, next) => {
 
 const getOrder = async (req, res, next) => {
   try {
-    const userId = req.params.userId; // Değişiklik: userId parametresi
+    const userId = req.params.userId;
 
-    const orderId = req.params.orderId; // Değişiklik: orderId parametresi
-
-    // Kullanıcının belgesini alın
+    const orderId = req.params.orderId;
     const userDocRef = firestore.collection("users").doc(userId);
-
-    // Kullanıcının orders koleksiyonuna erişin
     const ordersCollectionRef = userDocRef.collection("orders");
-
-    // Belirli bir sipariş ID'si ile belgeyi alın
     const orderDocRef = ordersCollectionRef.doc(orderId);
     const orderSnapshot = await orderDocRef.get();
 
@@ -232,14 +213,8 @@ const updateOrder = async (req, res, next) => {
     const userId = req.params.userId;
     const orderId = req.params.orderId;
     const updatedData = req.body;
-
-    // Kullanıcının belgesini alın
     const userDocRef = firestore.collection("users").doc(userId);
-
-    // Kullanıcının orders koleksiyonuna erişin
     const ordersCollectionRef = userDocRef.collection("orders");
-
-    // Belirli bir sipariş ID'si ile belgeyi güncelleyin
     const orderDocRef = ordersCollectionRef.doc(orderId);
     await orderDocRef.update(updatedData);
 
@@ -253,14 +228,8 @@ const deleteOrder = async (req, res, next) => {
   try {
     const userId = req.params.userId;
     const orderId = req.params.orderId;
-
-    // Kullanıcının belgesini alın
     const userDocRef = firestore.collection("users").doc(userId);
-
-    // Kullanıcının orders koleksiyonuna erişin
     const ordersCollectionRef = userDocRef.collection("orders");
-
-    // Belirli bir sipariş ID'si ile belgeyi silin
     await ordersCollectionRef.doc(orderId).delete();
 
     res.status(200).json({ message: "order başarıyla silindi." });

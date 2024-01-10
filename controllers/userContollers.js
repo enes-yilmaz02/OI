@@ -115,7 +115,7 @@ const getUserWithEmail = async (req, res, next) => {
       };
 
       res.send(responseData);
-      console.log(responseData);
+      
     }
   } catch (error) {
     res.status(500).send(error.message);
@@ -168,11 +168,10 @@ const deleteUser = async (req, res, next) => {
 const checkPassword = async (req, res) => {
   try {
     const userId = req.params.userId;
-    console.log(userId);
+   
     
     const { password } = req.body;
-    console.log(password)
-
+   
     const userDoc = await firestore.collection("users").doc(userId).get();
 
     if (!userDoc.exists) {
@@ -248,8 +247,9 @@ const loginUser = async (req, res) => {
 
 const loginUserWithEmail = async (req, res) => {
   try {
-    const { email } = req.params;
-
+    const {email} = req.params;
+  
+    
     const users = await firestore.collection("users").get();
     
     const userQuery = users.docs.filter((doc) => doc.data().email === email);
